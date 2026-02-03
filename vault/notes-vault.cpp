@@ -4,14 +4,16 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include <vault/unit.h>
+
 #include <functional>
+
 #include <QCoreApplication>
 #include <QSqlDatabase>
 #include <QSqlDriver>
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QStringList>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QProcess>
 #include <QDir>
 #include <QFileInfo>
@@ -31,13 +33,15 @@ QString get_export_fname(QString const &path)
 
 str_map_type parse_export_line(QString const &line)
 {
-    QRegExp re("^-- @([^@]+)@(.*)$");
-    if (!re.exactMatch(line))
-        return str_map_type({{"data", line}});
-    auto matches = re.capturedTexts();
-    return str_map_type({{"tag", matches[1]}, {"data", matches[2]}});
-}
+    QRegularExpression re("^-- @([^@]+)@(.*)$");
+    QRegularExpressionMatch match = re.match(line);
 
+    if (!match.hasMatch() || match.captured().length() != line.length()) {
+        return str_map_type({{"data", line}});
+    }
+
+    return str_map_type({{"tag", match.captured(1)}, {"data", match.captured(2)}});
+}
 
 void find_files(QString const &path, QString const &pattern, QStringList &found, bool clear = true)
 {
@@ -49,8 +53,6 @@ void find_files(QString const &path, QString const &pattern, QStringList &found,
     for (const QString &dir : pwd.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
         find_files(path + "/" + dir, pattern, found, false);
 }
-
-
 
 QStringList data_to_inserts(QString const &data)
 {
@@ -117,12 +119,14 @@ void mkpath(QString const &path)
 QString fixPath(const QString &path)
 {
     // Check that the path is as expected and replace dynamic parts
-    QRegExp re("^[\\w/-]+/.local/share/[\\w/-]+/QML/OfflineStorage/Databases/(.+)$");
-    if (!re.exactMatch(path)) {
+    QRegularExpression re("^[\\w/-]+/.local/share/[\\w/-]+/QML/OfflineStorage/Databases/(.+)$");
+    QRegularExpressionMatch match = re.match(path);
+
+    if (!match.hasMatch() || match.captured().length() != path.length()) {
         qCWarning(lcBackup) << "Path did not match regexp" << path;
         return path;
     }
-    auto newPath = NotesDirectory.arg(QDir::homePath()) + re.cap(1);
+    auto newPath = NotesDirectory.arg(QDir::homePath()) + match.captured(1);
     qCDebug(lcBackup) << "Fixed path" << path << "to" << newPath;
     return newPath;
 }
