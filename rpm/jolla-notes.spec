@@ -5,7 +5,7 @@
 
 Name:       jolla-notes
 Summary:    Note-taking application
-Version:    1.0
+Version:    1.0.30
 Release:    1
 License:    BSD-3-Clause
 URL:        https://github.com/sailfishos/jolla-notes
@@ -24,7 +24,6 @@ BuildRequires:  qt5-qttools-linguist
 BuildRequires:  pkgconfig(vault) >= 1.0.2
 BuildRequires:  pkgconfig(icu-i18n)
 
-Requires:  jolla-notes-settings = %{version}
 Requires:  sailfish-content-graphics-closed
 Requires:  sailfishsilica-qt5 >= 1.2.25
 Requires:  qt5-qtdeclarative-import-localstorageplugin
@@ -34,6 +33,8 @@ Requires:  declarative-transferengine-qt5 >= 0.3.1
 Requires:  nemo-qml-plugin-configuration-qt5
 Requires:  %{name}-all-translations
 Requires:  vault >= 0.1.0
+Provides:  jolla-notes-settings > 1.0.29
+Obsoletes: jolla-notes-settings <= 1.0.29
 
 %description
 Note-taking application using Sailfish Silica components
@@ -55,13 +56,6 @@ Requires: testrunner-lite
 %description tests
 This package installs automated test scripts for jolla-notes,
 and a test definition XML file for testrunner-lite.
-
-%package settings
-Summary:   Setting page for jolla-notes
-Requires:  jolla-settings
-
-%description settings
-Settings page for jolla-notes
 
 %prep
 %setup -q -n %{name}-%{version}
@@ -89,14 +83,12 @@ install -m 644 -p %{SOURCE1} %{buildroot}%{_datadir}/mapplauncherd/privileges.d/
 %{_datadir}/dbus-1/services/com.jolla.notes.service
 %dir %{_datadir}/jolla-vault/units
 %{_datadir}/jolla-vault/units/Notes.json
+%{_libdir}/qt5/qml/com/jolla/notes/settings
+%{_datadir}/jolla-settings/entries/*.json
+%{_datadir}/jolla-settings/pages/jolla-notes
 
 %files ts-devel
 %{_datadir}/translations/source/*.ts
 
 %files tests
 /opt/tests/jolla-notes
-
-%files settings
-%{_libdir}/qt5/qml/com/jolla/notes/settings
-%{_datadir}/jolla-settings/entries/*.json
-%{_datadir}/jolla-settings/pages/jolla-notes
