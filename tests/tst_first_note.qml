@@ -72,12 +72,28 @@ JollaNotes.Notes {
                     "note saved after text was typed")
         }
 
-        function test_4_back() {
+        function test_4_autosave_updates_first_note() {
+            var uid = currentPage.uid
+            verify(uid != "", "new note page has the inserted note uid")
+
+            currentPage.text = "hello again"
+            wait(6000) // give timer time to run out
+            wait(100) // then a chance to run
+
+            wait_for("autosave updated existing note instead of inserting",
+                     function() {
+                         return notesModel.count == 1
+                                && notesModel.get(0).text == "hello again"
+                     })
+            compare(notesModel.get(0).uid, uid)
+        }
+
+        function test_5_back() {
             go_back()
             wait_pagestack("note page closed", 1)
         }
 
-        function test_5_no_comforter() {
+        function test_6_no_comforter() {
             var comforter = find_text(currentPage, "notes-la-overview-placeholder")
             if (comforter) {
                 wait_for("write-note text went away when note was written",
@@ -87,7 +103,7 @@ JollaNotes.Notes {
             }
         }
 
-        function test_6_no_tap_to_write() {
+        function test_7_no_tap_to_write() {
             // give it time to adjust to losing the keyboard
             // TODO: some way to wait on "currentPage.height" would be nice
             wait_animation_stop(currentPage)

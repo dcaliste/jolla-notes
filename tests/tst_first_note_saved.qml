@@ -24,7 +24,7 @@ JollaNotes.Notes {
         }
 
         function test_note_saved() {
-            var item = find_text(currentPage, "hello")
+            var item = find_text(currentPage, "hello again")
             verify_displayed(item, "saved note")
         }
 
@@ -36,12 +36,12 @@ JollaNotes.Notes {
             go_back()
             wait_pagestack("note page closed", 1)
 
-            var old_item = find_text(currentPage, "hello")
+            var old_item = find_text(currentPage, "hello again")
             var new_item = find_text(currentPage, "bye")
             verify(old_item, "saved item found")
             verify(new_item, "newly written item found")
 
-            var old_text = find_real_text(old_item, "hello")
+            var old_text = find_real_text(old_item, "hello again")
             var new_text = find_real_text(new_item, "bye")
             verify(old_text, "saved item text found")
             verify(new_text, "newly written item text found")
