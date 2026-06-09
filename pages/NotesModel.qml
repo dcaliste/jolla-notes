@@ -58,9 +58,14 @@ ListModel {
         return availableColors[index]
     }
 
-    function newNote(position, initialtext, color) {
+    function newNote(position, initialtext, color, callback) {
         var _color = color + "" // convert to string
         Database.newNote(position, _color, initialtext, function (note) {
+            // Signal the UID returned by the database.
+            if (callback) {
+                callback(note.uid)
+            }
+            // Update the model.
             var msg = {'action': 'insert', 'model': model, "uid": note.uid, "text": note.text, "color": note.color }
             worker.sendMessage(msg)
         })

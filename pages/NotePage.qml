@@ -19,20 +19,25 @@ Page {
     property alias text: textArea.text
     property alias color: noteview.color
     property alias pageNumber: noteview.pageNumber
-    property bool loaded  // only load from model once
 
     property bool __jollanotes_notepage
+    property bool _saving
 
     highContrast: true
 
     onUidChanged: {
+        if (_saving) {
+            // Note got an uid and is saved in storage,
+            // but not in the model yet.
+            return
+        }
+
         var item = notesModel.getByUid(uid)
         if (item != undefined) {
             potentialPage = 0
             noteview.savedText = item.text
             noteview.text = item.text
             noteview.color = item.color
-            loaded = true
         } else {
             console.warn("note not found, uid = ", uid)
         }
@@ -54,7 +59,13 @@ Page {
             noteview.savedText = text
             if (potentialPage) {
                 if (text.trim() != '') {
-                    notesModel.newNote(potentialPage, text, noteview.color)
+                    notesModel.newNote(potentialPage, text, noteview.color,
+                                       function(uid) {
+                                           _saving = true
+                                           page.uid = uid
+                                           potentialPage = 0
+                                           _saving = false
+                                       })
                     return true
                 }
             } else if (page.uid != '') {
